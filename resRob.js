@@ -13,20 +13,17 @@ const TOCK_URL = 'https://www.exploretock.com/alinea';
 
   // Click the login button
   console.log('Logging in...');
+  ``;
   await page.click('text=Log in');
   await page.waitForLoadState('networkidle');
+  // waiting for page to be stable before entering LOGIN
   await page.fill('input[name="email"]', process.env.TOCK_EMAIL);
-  // await page.waitForSelector('#password', { state: 'visible', timeout: 5000 });
-  // await page.waitForSelector('#password', { state: 'enabled', timeout: 5000 });
-  // await page.fill('#password', process.env.TOCK_PASSWORD);
+  // waiting for page to be stable before entering PASSWORD
   await page.waitForLoadState('networkidle');
   await page.fill('input[name="password"]', process.env.TOCK_PASSWORD);
-  // await page.waitForSelector('[data-testid="signin"]', { state: 'visible' });
-  // await page.waitForSelector('[data-testid="signin"]', { state: 'enabled' });
-  // await page.click('[data-testid="signin"]');
+  // waiting for signin button to be stable before clicking
   await page.waitForSelector('[data-testid="signin"]', { state: 'visible' });
   await page.click('[data-testid="signin"]');
-  // await page.press('input[name="password"]', 'Enter');
 
   await page.waitForTimeout(3000); // Wait for login to complete
 

@@ -3,6 +3,10 @@ const { chromium } = require('playwright');
 
 const TOCK_URL = 'https://www.exploretock.com/alinea';
 
+// await Promise.all(dates.map(async (date) => {
+
+// }));
+
 (async () => {
   const browser = await chromium.launch({ headless: false }); // Set to true for headless mode
   const context = await browser.newContext();
@@ -70,101 +74,72 @@ const TOCK_URL = 'https://www.exploretock.com/alinea';
       console.log('❌ Guest selector not found in pop-up.');
     }
 
-    // Select the date (April 15, 2025)
+    // Click on calendar next button to access May
+    const calendarNext = '[data-testid="calendar-next-button_calendar-next"]';
+    await page.waitForSelector(calendarNext, { timeout: 5000 });
+    await page.click(calendarNext);
+    console.log('✅ Clicked calendarNext Button');
+
+    // Select the date CHANGE TO 5/17
     const dateSelector =
-      'button[aria-label="2025-04-23"][data-testid="consumer-calendar-day"]';
+      'button[aria-label="2025-04-19"][data-testid="consumer-calendar-day"]';
     await page.waitForSelector(dateSelector, { timeout: 5000 });
     await page.click(dateSelector);
-    console.log('✅ Date set to April 23, 2025.');
+    console.log('✅ Date set to April 16, 2025.');
 
-    // // Select the date (May 15)
-    // await page.waitForSelector('.calendar-button', { timeout: 5000 });
-    // await page.click('.calendar-button'); // Open date picker
-    // await page.waitForSelector('.calendar-day[data-date="2024-04-15"]');
-    // await page.click('.calendar-day[data-date="2024-04-15"]');
-    // console.log('✅ Date set to May 15.');
+    // Select first avaiable time slot
+    const bookingButton = '[data-testid="booking-card-button"]';
+    await page.waitForSelector(bookingButton, { timeout: 5000 });
+    await page.click(bookingButton);
+    await page.waitForTimeout(5000);
+    console.log('✅ Booking Table...');
 
-    // Proceed with selecting time slots and checkout
-    await page.waitForSelector('.available-time-slot-class', { timeout: 5000 });
-    const timeSlots = await page.$$('.available-time-slot-class');
+    // Selecting Wine Pairings to be Made on Site
+    const menuItems = await page.$$('[data-testid="menu-item-name"]');
 
-    if (timeSlots.length > 0) {
-      console.log('⏳ Selecting time slot...');
-      await timeSlots[0].click();
-      await page.waitForTimeout(2000);
-      console.log('✅ Proceeding to checkout...');
-      await page.click('.checkout-button-class');
-      console.log('🎉 Reservation attempt complete!');
-    } else {
-      console.log('❌ No time slots available.');
+    for (const item of menuItems) {
+      const text = await item.textContent();
+      if (text.trim() === 'Select on Site') {
+        //console.log(`This is the item: ${item}`);
+        await item.click();
+        console.log('✅ Clicked "Select on Site".');
+        break;
+      }
     }
+
+    // Wait for the pop-up to appear
+    const popUpSelector =
+      '[data-testid="supplement-plus-one-supplement-id-8600800"]';
+    await page.waitForSelector(popUpSelector, { timeout: 5000 });
+
+    // Click the increase quantity button
+    await page.click(popUpSelector);
+    console.log('✅ Clicked "Increase Quantity" button.');
+
+    // Click Add Items for Wine Pairings
+    const addItemButton = '[data-testid="add-item-button"]';
+    await page.waitForSelector(addItemButton, { timeout: 5000 });
+    await page.click(addItemButton);
+    console.log('✅ Clicked Add');
+
+    // Click View Cart
+    const viewCart = '[data-testid="supplement-page-view-order"]';
+    await page.waitForSelector(viewCart, { timeout: 5000 });
+    await page.click(viewCart);
+    console.log('✅ Click view cart');
   } catch (error) {
     console.log('⚠️ No available slots or issue selecting:', error);
+
+    // NEED TO ACCESS CONTINUE TO PAYMENT BUTTON
+    // Wait for the "Continue to payment" button to appear
+    const continueButtonSelector = 'button.css-1yfxm9y';
+    await page.waitForSelector(continueButtonSelector, { timeout: 10000 });
+
+    // Click the button
+    await page.click(continueButtonSelector);
+    console.log('✅ Clicked "Continue to payment".');
   }
 
-  await browser.close();
-
-  // try {
-  //   // Click on the "Gallery Book Now" link
-  //   await page.waitForSelector(
-  //     '[data-testid="offering-book-button_TheGalleryAlinea"]',
-  //     { timeout: 5000 }
-  //   );
-  //   await page.click('[data-testid="offering-book-button_TheGalleryAlinea"]');
-  //   console.log('✅ Clicked "Gallery Book Now".');
-
-  //   // Wait for the reservation pop-up to appear
-  //   await page.waitForSelector('[data-testid="experience-dialog-content"]', {
-  //     timeout: 5000,
-  //   });
-
-  //   // Find the guest selector within the pop-up
-  //   const popupGuestSelector = await page.$(
-  //     '[data-testid="reservation-search-bar"] [data-testid="guest-selector"]'
-  //   );
-
-  //   if (popupGuestSelector) {
-  //     console.log('✅ Found the pop-up guest selector.');
-
-  //     //SELECTING THE WRONG GUEST SELECTOR
-
-  //     // Increase the party size to 4 by clicking the "+" button twice
-  //     for (let i = 0; i < 2; i++) {
-  //       await popupGuestSelector
-  //         .$('[data-testid="guest-selector_plus"]')
-  //         .then((button) => button.click());
-  //       await page.waitForTimeout(500); // Small delay for stability
-  //     }
-
-  //     console.log('✅ Party size increased to 4.');
-  //   } else {
-  //     console.log('❌ Could not find the pop-up guest selector.');
-  //   }
-
-  //   // Select the date (May 15)
-  //   await page.waitForSelector('.calendar-button', { timeout: 5000 });
-  //   await page.click('.calendar-button'); // Open date picker
-  //   await page.waitForSelector('.calendar-day[data-date="2024-05-15"]');
-  //   await page.click('.calendar-day[data-date="2024-05-15"]');
-  //   console.log('✅ Date set to May 15.');
-
-  //   // Proceed with selecting time slots and checkout
-  //   await page.waitForSelector('.available-time-slot-class', { timeout: 5000 });
-  //   const timeSlots = await page.$$('.available-time-slot-class');
-
-  //   if (timeSlots.length > 0) {
-  //     console.log('⏳ Selecting time slot...');
-  //     await timeSlots[0].click();
-  //     await page.waitForTimeout(2000);
-  //     console.log('✅ Proceeding to checkout...');
-  //     await page.click('.checkout-button-class');
-  //     console.log('🎉 Reservation attempt complete!');
-  //   } else {
-  //     console.log('❌ No time slots available.');
-  //   }
-  // } catch (error) {
-  //   console.log('⚠️ No available slots or issue selecting:', error);
-  // }
-
-  // await browser.close();
+  //UNCOMMENT THIS!!!
+  //await browser.close();
 })();
